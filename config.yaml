@@ -1,0 +1,40 @@
+seed: 42
+
+data:
+  dataset: "whdld"
+  root: "data/WHDLD"
+  images_dir: "Images"
+  masks_dir: "ImagesPNG"
+  img_size: [256, 256]          # (H, W)
+  split_ratio: [0.8, 0.1, 0.1]   # train/val/test
+  num_workers: 2
+
+model:
+  backbone: "resnet34"
+  num_classes: 6
+  simam_in_encoder: true
+  cbam_in_decoder: true
+
+loss:
+  ce_weight: 1.0
+  dice_weight: 1.0
+  ignore_index: -1
+
+train:
+  batch_size: 16
+  epochs: 60
+  lr: 0.001
+  weight_decay: 0.00001
+  amp: true
+  log_interval: 50
+  save_dir: "runs"
+  save_best_metric: "miou"
+
+eval:
+  checkpoint: ""                 # 留空则默认 runs/best.pt
+
+infer:
+  checkpoint: ""                 # 留空则默认 runs/best.pt
+  input_path: "data/WHDLD/Images/wh0001.jpg"
+  output_dir: "runs/infer"
+  overlay_alpha: 0.5
