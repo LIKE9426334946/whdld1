@@ -2,9 +2,9 @@ seed: 42
 
 data:
   dataset: "whdld"
-  root: "data/WHDLD"
-  images_dir: "Images"
-  masks_dir: "ImagesPNG"
+  root: "/kaggle/input/datasets/thenoart/whdld-data"
+  images_dir: "image/Images"
+  masks_dir: "image/Images"
   img_size: [256, 256]          # (H, W)
   split_ratio: [0.8, 0.1, 0.1]   # train/val/test
   num_workers: 2
@@ -37,4 +37,5 @@ infer:
   checkpoint: ""                 # 留空则默认 runs/best.pt
   input_path: "data/WHDLD/Images/wh0001.jpg"
   output_dir: "runs/infer"
+
   overlay_alpha: 0.5
