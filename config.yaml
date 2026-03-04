@@ -4,7 +4,7 @@ data:
   dataset: "whdld"
   root: "/kaggle/input/datasets/thenoart/whdld-data"
   images_dir: "image/Images"
-  masks_dir: "image/Images"
+  masks_dir: "imagesPNG/ImagesPNG"
   img_size: [256, 256]          # (H, W)
   split_ratio: [0.8, 0.1, 0.1]   # train/val/test
   num_workers: 2
@@ -39,3 +39,4 @@ infer:
   output_dir: "runs/infer"
 
   overlay_alpha: 0.5
+
