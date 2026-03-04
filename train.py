@@ -37,24 +37,34 @@ def build_datasets(cfg):
 
     elif dataset_name == "whdld":
         images_dir = cfg["data"]["images_dir"]
-        masks_dir = cfg["data"]["masks_dir"]
+        masks_dir  = cfg["data"]["masks_dir"]
         ratio = tuple(cfg["data"]["split_ratio"])
-
-        split_dir = os.path.join(root, "splits")
+    
+        # ✅ 写到 runs/splits（Kaggle可写）
+        split_dir = os.path.join(cfg["train"]["save_dir"], "splits")
+        os.makedirs(split_dir, exist_ok=True)
+    
         tr_path = os.path.join(split_dir, "train.txt")
         va_path = os.path.join(split_dir, "val.txt")
         te_path = os.path.join(split_dir, "test.txt")
-
+    
         if not (os.path.exists(tr_path) and os.path.exists(va_path) and os.path.exists(te_path)):
-            make_splits(root=root, images_dir=images_dir, ratio=ratio, seed=cfg["seed"])
-
+            make_splits(root=root, images_dir=images_dir, ratio=ratio, seed=cfg["seed"], out_dir=split_dir)
+    
         train_ids = read_split(tr_path)
-        val_ids = read_split(va_path)
-
-        ds_train = WHDLDDataset(root=root, split_files=train_ids, images_dir=images_dir, masks_dir=masks_dir,
-                                transforms=tf_train, colors=WHDLD_COLORS)
-        ds_val = WHDLDDataset(root=root, split_files=val_ids, images_dir=images_dir, masks_dir=masks_dir,
-                              transforms=tf_val, colors=WHDLD_COLORS)
+        val_ids   = read_split(va_path)
+    
+        ds_train = WHDLDDataset(
+            root=root, split_files=train_ids,
+            images_dir=images_dir, masks_dir=masks_dir,
+            transforms=tf_train, colors=WHDLD_COLORS
+        )
+        ds_val = WHDLDDataset(
+            root=root, split_files=val_ids,
+            images_dir=images_dir, masks_dir=masks_dir,
+            transforms=tf_val, colors=WHDLD_COLORS
+        )
+    
         num_classes = 6
         colors = WHDLD_COLORS
 
@@ -191,4 +201,5 @@ def main():
             print(f"Saved best to {best_path} ({best_metric_name}={best_metric:.4f})")
 
 if __name__ == "__main__":
+
     main()
