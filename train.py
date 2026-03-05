@@ -7,7 +7,7 @@ from torch.utils.data import DataLoader
 
 from utils.seed import set_seed
 from datasets.transforms import build_transforms
-from models.unet_resnet_attn import UNetResNet34Attn
+from models.unet_resnet_attn import UNetResNet34Attn, UNetResNet50Attn
 from losses import CombinedLoss
 from utils.metrics import ConfusionMatrix
 from utils.visualize import save_prediction_vis
@@ -100,12 +100,21 @@ def main():
         pin_memory=True
     )
 
-    model = UNetResNet34Attn(
-        num_classes=num_classes,
-        simam_in_encoder=cfg["model"]["simam_in_encoder"],
-        cbam_in_decoder=cfg["model"]["cbam_in_decoder"],
-        pretrained=True
-    ).to(device)
+    backbone = cfg["model"].get("backbone", "resnet34").lower()
+    if backbone == "resnet50":
+        model = UNetResNet50Attn(
+            num_classes=num_classes,
+            simam_in_encoder=cfg["model"]["simam_in_encoder"],
+            cbam_in_decoder=cfg["model"]["cbam_in_decoder"],
+            pretrained=True
+        ).to(device)
+    else:
+        model = UNetResNet34Attn(
+            num_classes=num_classes,
+            simam_in_encoder=cfg["model"]["simam_in_encoder"],
+            cbam_in_decoder=cfg["model"]["cbam_in_decoder"],
+            pretrained=True
+        ).to(device)
 
     criterion = CombinedLoss(
         num_classes=num_classes,
@@ -203,3 +212,4 @@ def main():
 if __name__ == "__main__":
 
     main()
+
