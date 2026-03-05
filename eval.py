@@ -128,4 +128,5 @@ def main(split="test"):
         print(f"  [{i}] {class_names[i]:<12s} IoU={stats['iou_per_class'][i]:.4f}  PA={stats['pa_per_class'][i]:.4f}")
 
 if __name__ == "__main__":
-    main("val")
+    main("test")
+
