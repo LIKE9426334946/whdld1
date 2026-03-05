@@ -10,7 +10,7 @@ data:
   num_workers: 2
 
 model:
-  backbone: "resnet34"
+  backbone: "resnet50"
   num_classes: 6
   simam_in_encoder: true
   cbam_in_decoder: true
@@ -39,5 +39,6 @@ infer:
   output_dir: "runs/infer"
 
   overlay_alpha: 0.5
+
 
 
