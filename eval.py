@@ -5,7 +5,7 @@ import torch
 from torch.utils.data import DataLoader
 
 from datasets.transforms import build_transforms
-from models.unet_resnet_attn import UNetResNet34Attn
+from models.unet_resnet_attn import UNetResNet34Attn, UNetResNet50Attn
 from losses import CombinedLoss
 from utils.metrics import ConfusionMatrix
 
@@ -54,7 +54,7 @@ def main(split="test"):
     # checkpoint：默认 runs/best.pt
     ckpt_path = cfg["eval"]["checkpoint"] or os.path.join(cfg["train"]["save_dir"], "best.pt")
     print("Using checkpoint:", ckpt_path)
-    ckpt = torch.load(ckpt_path, map_location="cpu")
+    ckpt = torch.load(ckpt_path, map_location="cpu", weights_only=False)
 
     # colors 优先从 checkpoint 取，取不到就用固定 WHDLD_COLORS
     colors = ckpt.get("colors", WHDLD_COLORS)
@@ -77,13 +77,22 @@ def main(split="test"):
 
     dl = DataLoader(ds, batch_size=1, shuffle=False, num_workers=cfg["data"]["num_workers"], pin_memory=True)
 
-    # model
-    model = UNetResNet34Attn(
-        num_classes=num_classes,
-        simam_in_encoder=cfg["model"]["simam_in_encoder"],
-        cbam_in_decoder=cfg["model"]["cbam_in_decoder"],
-        pretrained=False
-    ).to(device)
+    backbone = cfg["model"].get("backbone", "resnet34").lower()
+    if backbone == "resnet50":
+        model = UNetResNet50Attn(
+            num_classes=num_classes,
+            simam_in_encoder=cfg["model"]["simam_in_encoder"],
+            cbam_in_decoder=cfg["model"]["cbam_in_decoder"],
+            pretrained=False
+        ).to(device)
+    else:
+        model = UNetResNet34Attn(
+            num_classes=num_classes,
+            simam_in_encoder=cfg["model"]["simam_in_encoder"],
+            cbam_in_decoder=cfg["model"]["cbam_in_decoder"],
+            pretrained=False
+        ).to(device)
+        
     model.load_state_dict(ckpt["model"], strict=True)
     model.eval()
 
@@ -119,4 +128,4 @@ def main(split="test"):
         print(f"  [{i}] {class_names[i]:<12s} IoU={stats['iou_per_class'][i]:.4f}  PA={stats['pa_per_class'][i]:.4f}")
 
 if __name__ == "__main__":
-    main("test")
+    main("val")

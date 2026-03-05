@@ -90,4 +90,77 @@ class UNetResNet34Attn(nn.Module):
         d1 = self.dec1(d2, s0)
 
         out = self.final_up(d1)
+
+        return out
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from torchvision import models
+
+from .attention import SimAM, CBAM
+
+
+# 下面只新增 ResNet50 版本
+
+class UNetResNet50Attn(nn.Module):
+    """
+    UNet + ResNet50 encoder
+    Encoder channels:
+      stem: 64
+      layer1: 256
+      layer2: 512
+      layer3: 1024
+      layer4: 2048
+    """
+    def __init__(self, num_classes: int, simam_in_encoder=True, cbam_in_decoder=True, pretrained=True):
+        super().__init__()
+        base = models.resnet50(weights=models.ResNet50_Weights.IMAGENET1K_V1 if pretrained else None)
+
+        self.stem = nn.Sequential(base.conv1, base.bn1, base.relu)  # /2, 64
+        self.maxpool = base.maxpool                                 # /4
+        self.enc1 = base.layer1                                     # /4, 256
+        self.enc2 = base.layer2                                     # /8, 512
+        self.enc3 = base.layer3                                     # /16, 1024
+        self.enc4 = base.layer4                                     # /32, 2048
+
+        self.simam = SimAM() if simam_in_encoder else nn.Identity()
+
+        # center: keep 2048 (you can reduce if you want, but keep consistent first)
+        self.center = ConvBlock(2048, 2048)
+
+        # decoder: progressively reduce channels
+        # UpBlock(in_ch, skip_ch, out_ch)
+        self.dec4 = UpBlock(2048, 1024, 1024, use_cbam=cbam_in_decoder)  # /16
+        self.dec3 = UpBlock(1024, 512,  512,  use_cbam=cbam_in_decoder)  # /8
+        self.dec2 = UpBlock(512,  256,  256,  use_cbam=cbam_in_decoder)  # /4
+        self.dec1 = UpBlock(256,  64,   64,   use_cbam=cbam_in_decoder)  # /2 (skip=stem)
+
+        self.final_up = nn.Sequential(
+            nn.ConvTranspose2d(64, 32, kernel_size=2, stride=2),  # back to /1
+            nn.ReLU(inplace=True),
+            nn.Conv2d(32, num_classes, kernel_size=1)
+        )
+
+    def forward(self, x):
+        s0 = self.stem(x)         # /2, 64
+        x1 = self.maxpool(s0)     # /4
+        e1 = self.enc1(x1)        # /4, 256
+        e2 = self.enc2(e1)        # /8, 512
+        e3 = self.enc3(e2)        # /16, 1024
+        e4 = self.enc4(e3)        # /32, 2048
+
+        # SimAM (parameter-free) on encoder features
+        e1 = self.simam(e1)
+        e2 = self.simam(e2)
+        e3 = self.simam(e3)
+        e4 = self.simam(e4)
+
+        c = self.center(e4)
+
+        d4 = self.dec4(c, e3)
+        d3 = self.dec3(d4, e2)
+        d2 = self.dec2(d3, e1)
+        d1 = self.dec1(d2, s0)
+
+        out = self.final_up(d1)
         return out
