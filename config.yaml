@@ -22,7 +22,7 @@ loss:
 
 train:
   batch_size: 16
-  epochs: 100
+  epochs: 2
   lr: 0.001
   weight_decay: 0.00001
   amp: true
@@ -39,5 +39,6 @@ infer:
   output_dir: "runs/infer"
 
   overlay_alpha: 0.5
+
 
 
