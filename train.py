@@ -17,7 +17,6 @@ from datasets.whdld import WHDLDDataset, WHDLD_COLORS
 
 def load_cfg(path="config.yaml"):
     with open(path, "r") as f:
-        print("train.py-01 data =",yaml.safe_load(f))
         return yaml.safe_load(f)
 
 def build_datasets(cfg):
@@ -204,4 +203,5 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
