@@ -10,4 +10,6 @@ def set_seed(seed: int = 42):
     torch.cuda.manual_seed_all(seed)
     os.environ["PYTHONHASHSEED"] = str(seed)
     torch.backends.cudnn.deterministic = False
+
     torch.backends.cudnn.benchmark = True
+    print("seed.py文件执行完毕")
