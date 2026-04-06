@@ -54,7 +54,7 @@ def main(split="test"):
     # checkpoint：默认 runs/best.pt
     ckpt_path = cfg["eval"]["checkpoint"] or os.path.join(cfg["train"]["save_dir"], "best.pt")
     print("Using checkpoint:", ckpt_path)
-    ckpt = torch.load(ckpt_path, map_location="cpu")
+    ckpt = torch.load(ckpt_path, map_location="cpu", weights_only=False)
 
     # colors 优先从 checkpoint 取，取不到就用固定 WHDLD_COLORS
     colors = ckpt.get("colors", WHDLD_COLORS)
