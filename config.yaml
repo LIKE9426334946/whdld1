@@ -22,7 +22,7 @@ loss:
 
 train:
   batch_size: 16
-  epochs: 100
+  epochs: 60
   lr: 0.001
   weight_decay: 0.00001
   amp: true
