@@ -13,7 +13,7 @@
 # 命令
 %cd /kaggle/working  
 !rm -rf /kaggle/working/whdld1  
-!git clone -b data1600 https://github.com/LIKE9426334946/project.git
-%cd /kaggle/working/project
-!python3 utils/split.py
+!git clone https://github.com/LIKE9426334946/whdld1.git  
+%cd /kaggle/working/whdld1  
+!python3 utils/split.py  
 !python3 train.py
